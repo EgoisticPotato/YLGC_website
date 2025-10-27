@@ -14,6 +14,13 @@ const cities = [
   { name: 'Singapore', lat: 1.3521, lon: 103.8198, color: '#f59e0b' },
   { name: 'Sydney', lat: -33.8688, lon: 151.2093, color: '#06b6d4' },
   { name: 'Mumbai', lat: 19.0760, lon: 72.8777, color: '#ec4899' },
+  { name: 'Melbourne', lat: -37.8136, lon: 144.9631, color: '#a855f7' }, // New
+  { name: 'Auckland', lat: -36.8485, lon: 174.7633, color: '#22c55e' }, // New
+  { name: 'Los Angeles', lat: 34.0522, lon: -118.2437, color: '#f97316' }, // New
+  { name: 'Chicago', lat: 41.8781, lon: -87.6298, color: '#6366f1' }, // New
+  { name: 'Houston', lat: 29.7604, lon: -95.3698, color: '#ec4899' }, // New
+  { name: 'Rio de Janeiro', lat: -22.9068, lon: -43.1729, color: '#14b8a6' }, // New
+  { name: 'Berlin', lat: 52.5200, lon: 13.4050, color: '#eab308' }, // New
 ];
 
 // Convert lat/lon to 3D coordinates on sphere
@@ -138,6 +145,18 @@ function Earth({ scrollProgress }) {
       [2, 6], // Tokyo to Sydney
       [7, 0], // Mumbai to NY
       [4, 7], // Dubai to Mumbai
+      [6, 8], // Sydney to Melbourne
+      [8, 9], // Melbourne to Auckland
+      [0, 10], // NY to Los Angeles
+      [10, 11], // Los Angeles to Chicago
+      [11, 12], // Chicago to Houston
+      [12, 13], // Houston to Rio de Janeiro
+      [13, 1], // Rio de Janeiro to London
+      [1, 14], // London to Berlin
+      [14, 3], // Berlin to Paris
+      [9, 2], // Auckland to Tokyo
+      [10, 7], // Los Angeles to Mumbai
+      [12, 4], // Houston to Dubai
     ];
     
     return routePairs.map(([i, j]) => ({
