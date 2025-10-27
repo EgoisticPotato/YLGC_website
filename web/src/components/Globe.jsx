@@ -2,7 +2,24 @@ import { useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Sphere } from '@react-three/drei';
 import * as THREE from 'three';
-import { useScrollProgress } from '../hooks/useScrollProgress.js';
+
+// Hook to track scroll progress
+function useScrollProgress() {
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = window.scrollY / scrollHeight;
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return scrollProgress;
+}
 
 // Major cities coordinates (lat, lon)
 const cities = [
@@ -14,13 +31,22 @@ const cities = [
   { name: 'Singapore', lat: 1.3521, lon: 103.8198, color: '#f59e0b' },
   { name: 'Sydney', lat: -33.8688, lon: 151.2093, color: '#06b6d4' },
   { name: 'Mumbai', lat: 19.0760, lon: 72.8777, color: '#ec4899' },
-  { name: 'Melbourne', lat: -37.8136, lon: 144.9631, color: '#a855f7' }, // New
-  { name: 'Auckland', lat: -36.8485, lon: 174.7633, color: '#22c55e' }, // New
-  { name: 'Los Angeles', lat: 34.0522, lon: -118.2437, color: '#f97316' }, // New
-  { name: 'Chicago', lat: 41.8781, lon: -87.6298, color: '#6366f1' }, // New
-  { name: 'Houston', lat: 29.7604, lon: -95.3698, color: '#ec4899' }, // New
-  { name: 'Rio de Janeiro', lat: -22.9068, lon: -43.1729, color: '#14b8a6' }, // New
-  { name: 'Berlin', lat: 52.5200, lon: 13.4050, color: '#eab308' }, // New
+  { name: 'Toronto', lat: 43.6532, lon: -79.3832, color: '#f43f5e' },
+  { name: 'Los Angeles', lat: 34.0522, lon: -118.2437, color: '#facc15' },
+  { name: 'Berlin', lat: 52.5200, lon: 13.4050, color: '#14b8a6' },
+  { name: 'Moscow', lat: 55.7558, lon: 37.6173, color: '#f97316' },
+  { name: 'São Paulo', lat: -23.5505, lon: -46.6333, color: '#22c55e' },
+  { name: 'Mexico City', lat: 19.4326, lon: -99.1332, color: '#a855f7' },
+  { name: 'Hong Kong', lat: 22.3193, lon: 114.1694, color: '#fb923c' },
+  { name: 'Seoul', lat: 37.5665, lon: 126.9780, color: '#e11d48' },
+  { name: 'Bangkok', lat: 13.7563, lon: 100.5018, color: '#84cc16' },
+  { name: 'Istanbul', lat: 41.0082, lon: 28.9784, color: '#06b6d4' },
+  { name: 'Melbourne', lat: -37.8136, lon: 144.9631, color: '#8b5cf6' },
+  { name: 'Vancouver', lat: 49.2827, lon: -123.1207, color: '#10b981' },
+  { name: 'Miami', lat: 25.7617, lon: -80.1918, color: '#f59e0b' },
+  { name: 'Delhi', lat: 28.6139, lon: 77.2090, color: '#ec4899' },
+  { name: 'Beijing', lat: 39.9042, lon: 116.4074, color: '#ef4444' },
+  { name: 'Shanghai', lat: 31.2304, lon: 121.4737, color: '#fbbf24' },
 ];
 
 // Convert lat/lon to 3D coordinates on sphere
@@ -49,7 +75,7 @@ function CityMarker({ position, color, scale = 1 }) {
   
   return (
     <mesh ref={markerRef} position={position}>
-      <sphereGeometry args={[0.04, 8, 8]} />
+      <sphereGeometry args={[0.04, 16, 16]} />
       <meshBasicMaterial color={color} transparent opacity={0.9} />
       {/* Outer glow ring */}
       <mesh scale={[2, 2, 0.1]}>
@@ -77,7 +103,7 @@ function Route({ start, end, color }) {
     return new THREE.QuadraticBezierCurve3(start, midPoint, end);
   }, [start, end]);
   
-  const points = useMemo(() => curve.getPoints(20), [curve]);
+  const points = useMemo(() => curve.getPoints(50), [curve]);
   
   useFrame((state) => {
     // Animate particle along the route
@@ -137,26 +163,58 @@ function Earth({ scrollProgress }) {
   // Generate routes between cities
   const routes = useMemo(() => {
     const routePairs = [
+      // North America routes
       [0, 1], // NY to London
+      [0, 8], // NY to Toronto
+      [0, 9], // NY to Los Angeles
+      [0, 20], // NY to Miami
+      [8, 19], // Toronto to Vancouver
+      [9, 2], // LA to Tokyo
+      [9, 13], // LA to Mexico City
+      [13, 12], // Mexico City to São Paulo
+      
+      // Europe routes
       [1, 3], // London to Paris
+      [1, 10], // London to Berlin
+      [1, 17], // London to Istanbul
       [3, 4], // Paris to Dubai
+      [3, 10], // Paris to Berlin
+      [10, 11], // Berlin to Moscow
+      [11, 22], // Moscow to Beijing
+      
+      // Middle East / Asia routes
       [4, 5], // Dubai to Singapore
-      [5, 2], // Singapore to Tokyo
-      [2, 6], // Tokyo to Sydney
-      [7, 0], // Mumbai to NY
       [4, 7], // Dubai to Mumbai
-      [6, 8], // Sydney to Melbourne
-      [8, 9], // Melbourne to Auckland
-      [0, 10], // NY to Los Angeles
-      [10, 11], // Los Angeles to Chicago
-      [11, 12], // Chicago to Houston
-      [12, 13], // Houston to Rio de Janeiro
-      [13, 1], // Rio de Janeiro to London
-      [1, 14], // London to Berlin
-      [14, 3], // Berlin to Paris
-      [9, 2], // Auckland to Tokyo
-      [10, 7], // Los Angeles to Mumbai
-      [12, 4], // Houston to Dubai
+      [4, 17], // Dubai to Istanbul
+      [5, 2], // Singapore to Tokyo
+      [5, 14], // Singapore to Hong Kong
+      [5, 16], // Singapore to Bangkok
+      [7, 21], // Mumbai to Delhi
+      [7, 4], // Mumbai to Dubai
+      [14, 2], // Hong Kong to Tokyo
+      [14, 15], // Hong Kong to Seoul
+      [14, 23], // Hong Kong to Shanghai
+      [15, 2], // Seoul to Tokyo
+      [16, 5], // Bangkok to Singapore
+      [22, 23], // Beijing to Shanghai
+      [23, 2], // Shanghai to Tokyo
+      [21, 22], // Delhi to Beijing
+      
+      // Pacific / Australia routes
+      [2, 6], // Tokyo to Sydney
+      [2, 15], // Tokyo to Seoul
+      [6, 18], // Sydney to Melbourne
+      [6, 5], // Sydney to Singapore
+      [19, 2], // Vancouver to Tokyo
+      [19, 9], // Vancouver to LA
+      
+      // Transatlantic / Cross-continental
+      [12, 1], // São Paulo to London
+      [12, 20], // São Paulo to Miami
+      [20, 13], // Miami to Mexico City
+      [0, 3], // NY to Paris
+      [9, 6], // LA to Sydney
+      [17, 11], // Istanbul to Moscow
     ];
     
     return routePairs.map(([i, j]) => ({
@@ -215,7 +273,7 @@ function Earth({ scrollProgress }) {
       />
       
       {/* Globe wireframe */}
-      <Sphere ref={meshRef} args={[2, 32, 32]}>
+      <Sphere ref={meshRef} args={[2, 64, 64]}>
         <meshStandardMaterial
           color={isDaytime ? "#3b82f6" : "#1e40af"}
           wireframe={true}
@@ -261,7 +319,7 @@ function Stars() {
   });
 
   const starGeometry = new THREE.BufferGeometry();
-  const starCount = 100;
+  const starCount = 200;
   const positions = new Float32Array(starCount * 3);
   
   for (let i = 0; i < starCount * 3; i += 3) {
@@ -291,6 +349,26 @@ function Stars() {
 
 export default function Globe() {
   const scrollProgress = useScrollProgress();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // Check if device is mobile
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Don't render globe on mobile for better performance
+  if (isMobile) {
+    return (
+      <div className="fixed inset-0 -z-10 bg-gradient-to-b from-blue-950 via-slate-900 to-blue-950 opacity-50" />
+    );
+  }
 
   return (
     <div className="fixed inset-0 -z-10 opacity-30">
@@ -300,6 +378,11 @@ export default function Globe() {
       >
         <Earth scrollProgress={scrollProgress} />
       </Canvas>
+      
+      {/* Scroll instruction */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white text-sm opacity-70">
+        Scroll to rotate the globe
+      </div>
     </div>
   );
 }
