@@ -49,7 +49,7 @@ function CityMarker({ position, color, scale = 1 }) {
   
   return (
     <mesh ref={markerRef} position={position}>
-      <sphereGeometry args={[0.04, 16, 16]} />
+      <sphereGeometry args={[0.04, 8, 8]} />
       <meshBasicMaterial color={color} transparent opacity={0.9} />
       {/* Outer glow ring */}
       <mesh scale={[2, 2, 0.1]}>
@@ -77,7 +77,7 @@ function Route({ start, end, color }) {
     return new THREE.QuadraticBezierCurve3(start, midPoint, end);
   }, [start, end]);
   
-  const points = useMemo(() => curve.getPoints(50), [curve]);
+  const points = useMemo(() => curve.getPoints(20), [curve]);
   
   useFrame((state) => {
     // Animate particle along the route
@@ -215,7 +215,7 @@ function Earth({ scrollProgress }) {
       />
       
       {/* Globe wireframe */}
-      <Sphere ref={meshRef} args={[2, 64, 64]}>
+      <Sphere ref={meshRef} args={[2, 32, 32]}>
         <meshStandardMaterial
           color={isDaytime ? "#3b82f6" : "#1e40af"}
           wireframe={true}
@@ -261,7 +261,7 @@ function Stars() {
   });
 
   const starGeometry = new THREE.BufferGeometry();
-  const starCount = 200;
+  const starCount = 100;
   const positions = new Float32Array(starCount * 3);
   
   for (let i = 0; i < starCount * 3; i += 3) {
